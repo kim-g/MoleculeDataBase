@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27703.2026
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoleculeDataBase", "MoleculeDataBase\MoleculeDataBase.csproj", "{30A6CBC1-1877-40E0-BBFE-799136168148}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleServer", "..\MolBase\ConsoleServer\ConsoleServer\ConsoleServer.csproj", "{73C4AB72-2142-4F72-9453-5EE4F51172BF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MolBase_Client", "..\MolBase\MolBase_Client\MolBase_Client\MolBase_Client.csproj", "{78991DBA-F65A-4502-BA06-79103C818023}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +13,14 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{30A6CBC1-1877-40E0-BBFE-799136168148}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{30A6CBC1-1877-40E0-BBFE-799136168148}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{30A6CBC1-1877-40E0-BBFE-799136168148}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{30A6CBC1-1877-40E0-BBFE-799136168148}.Release|Any CPU.Build.0 = Release|Any CPU
+		{73C4AB72-2142-4F72-9453-5EE4F51172BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{73C4AB72-2142-4F72-9453-5EE4F51172BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{73C4AB72-2142-4F72-9453-5EE4F51172BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{73C4AB72-2142-4F72-9453-5EE4F51172BF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{78991DBA-F65A-4502-BA06-79103C818023}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{78991DBA-F65A-4502-BA06-79103C818023}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{78991DBA-F65A-4502-BA06-79103C818023}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{78991DBA-F65A-4502-BA06-79103C818023}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
