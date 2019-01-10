@@ -150,7 +150,7 @@ namespace MoleculeDataBase
                 // Создаем поток для расшифрования.
                 using (MemoryStream msDecrypt = new MemoryStream(cipherText))
                 {
-                    using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
+                    using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Write))
                     {
 
                         Info = new byte[csDecrypt.Length];
