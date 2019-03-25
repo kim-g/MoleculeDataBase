@@ -87,7 +87,7 @@ namespace MoleculeDataBase
             BinaryFormatter formatter = new BinaryFormatter();
             // получаем поток, куда будем записывать сериализованный объект
             ms.Position = 0;            
-            return formatter.Deserialize(ms);
+            return (Serializable)formatter.Deserialize(ms);
         }
 
         /// <summary>
@@ -95,7 +95,7 @@ namespace MoleculeDataBase
         /// </summary>
         /// <param name="ms"></param>
         /// <returns></returns>
-        public static Serializable FromSOAP(Stream ms)
+        public static object FromSOAP(Stream ms)
         {
             SoapFormatter formatter = new SoapFormatter();
             // получаем поток, куда будем записывать сериализованный объект
@@ -108,7 +108,7 @@ namespace MoleculeDataBase
         /// </summary>
         /// <param name="SOAP"></param>
         /// <returns></returns>
-        public static Serializable FromSOAP(string SOAP)
+        public static object FromSOAP(string SOAP)
         {
             return FromSOAP(new MemoryStream(Encoding.UTF8.GetBytes(SOAP)));
         }

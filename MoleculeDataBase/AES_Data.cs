@@ -67,11 +67,11 @@ namespace MoleculeDataBase
                     using (var csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
                     {
                         csEncrypt.Write(Info, 0, Info.Length);
-                        encrypted = msEncrypt.ToArray();
+                        csEncrypt.FlushFinalBlock();
                     }
+                    encrypted = msEncrypt.ToArray();
                 }
             }
-
 
             //Возвращаем зашифрованные байты из потока памяти.
             return encrypted;
@@ -121,7 +121,26 @@ namespace MoleculeDataBase
 
         }
 
-        // Дешифрует массив байт, используя текущие ключ и IV
+        /// <summary>
+        /// Дешифрует массив байт, используя текущие ключ и IV
+        /// </summary>
+        /// <param name="EncryptedStream">Поток</param>
+        /// <returns></returns>
+        public byte[] DecryptBytes(Stream EncryptedStream)
+        {
+            // Делаю пока костыльно, но напрямую непонятные ошибки. Извините.
+            byte[] ByteBlock = new byte[EncryptedStream.Length];
+
+            EncryptedStream.Read(ByteBlock, 0, ByteBlock.Length);
+
+            return DecryptBytes(ByteBlock);
+        }
+
+        /// <summary>
+        /// Дешифрует массив байт, используя текущие ключ и IV
+        /// </summary>
+        /// <param name="cipherText">Массив байт для дешифровки</param>
+        /// <returns></returns>
         public byte[] DecryptBytes(byte[] cipherText)
         {
             // Проверяем аргументы
@@ -134,7 +153,7 @@ namespace MoleculeDataBase
             if (AesIV == null || AesIV.Length <= 0)
                 throw new ArgumentNullException("IV");
 
-            // Строка, для хранения расшифрованного текста
+            // массив для хранения расшифрованного массива данных
             byte[] Info;
 
             // Создаем объект класса AES,
@@ -148,15 +167,12 @@ namespace MoleculeDataBase
                 ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
 
                 // Создаем поток для расшифрования.
-                using (MemoryStream msDecrypt = new MemoryStream(cipherText))
+                MemoryStream msDecrypt = new MemoryStream();
+                using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Write))
                 {
-                    using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Write))
-                    {
-
-                        Info = new byte[csDecrypt.Length];
-                        csDecrypt.Read(Info, 0, Convert.ToInt32(csDecrypt.Length));
-                    }
+                    csDecrypt.Write(cipherText, 0, cipherText.Length);
                 }
+                Info = msDecrypt.ToArray();
             }
 
             return Info;
@@ -166,10 +182,6 @@ namespace MoleculeDataBase
         // Дешифрует строку, используя текущие ключ и IV
         public string DecryptStringFromBytes(byte[] cipherText)
         {
-            /*string plaintext = Encoding.UTF8.GetString(DecryptBytes(cipherText));
-
-            return plaintext;*/
-
             // Проверяем аргументы
             if (cipherText == null || cipherText.Length <= 0)
             {

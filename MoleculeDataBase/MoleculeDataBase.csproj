@@ -39,6 +39,7 @@
   <ItemGroup>
     <Compile Include="AES_Data.cs" />
     <Compile Include="Serializable.cs" />
+    <Compile Include="UserTransport.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.Runtime.Serialization.Formatters.Soap" />
