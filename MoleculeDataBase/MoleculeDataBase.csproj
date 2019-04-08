@@ -38,10 +38,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AES_Data.cs" />
+    <Compile Include="MoleculeTransport.cs" />
+    <Compile Include="OBMolecule.cs" />
     <Compile Include="Serializable.cs" />
     <Compile Include="UserTransport.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="OBDotNet">
+      <HintPath>..\MoleculeServer\OpenBabel\OBDotNet.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="System.Runtime.Serialization.Formatters.Soap" />
     <Reference Include="System.XML" />
     <Reference Include="System.Xml.Linq" />

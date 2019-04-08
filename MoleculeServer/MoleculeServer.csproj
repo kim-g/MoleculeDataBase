@@ -86,7 +86,6 @@
     <Compile Include="MoleculeServerService.Designer.cs">
       <DependentUpon>MoleculeServerService.cs</DependentUpon>
     </Compile>
-    <Compile Include="Molecule_Transport.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StringExtention.cs" />

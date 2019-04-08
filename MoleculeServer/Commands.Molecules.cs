@@ -8,6 +8,7 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using Extentions;
+using MoleculeDataBase;
 
 namespace Commands
 {
@@ -248,6 +249,8 @@ VALUES (@Name, @Laboratory, @Person, @Structure, @State, @MeltingPoint, @Conditi
             obconv.ReadString(mol, Mol);
             obconv.SetOutFormat("smi");
 
+            
+
             string Temp = obconv.WriteString(mol);
             if (!mol.DeleteHydrogens()) { Console.WriteLine("DeleteHidrogens() failed!"); };  //Убираем все водороды
             
@@ -269,7 +272,7 @@ VALUES (@Name, @Laboratory, @Person, @Structure, @State, @MeltingPoint, @Conditi
         /// <param name="dt"></param>
         /// <param name="i"></param>
         /// <returns></returns>
-        private Molecule_Transport DataRow_To_Molecule_Transport(DataTable dt, int i)
+        private MoleculeTransport DataRow_To_Molecule_Transport(DataTable dt, int i)
         {
             /*
                                 Структура данных: (-> - Открытый, => - закодированный)
@@ -296,40 +299,46 @@ VALUES (@Name, @Laboratory, @Person, @Structure, @State, @MeltingPoint, @Conditi
                                 */
 
             // Наполнение транспортного класса
-            Molecule_Transport MT = new Molecule_Transport();
-            MT.ID = Convert.ToInt32(FromBase(dt, i, 0));
-            MT.Name = FromBase(dt, i, 1);
-            MT.Laboratory = new laboratory();
-            MT.Laboratory.ID = Convert.ToInt32(FromBase(dt, i, 2));
             List<string> Lab = GetRows("SELECT `name`, `abbr` FROM `laboratory` WHERE `id`=" +
                 dt.Rows[i].ItemArray[2].ToString() + " LIMIT 1");
-            MT.Laboratory.Name = Lab[0];
-            MT.Laboratory.Abb = Lab[1];
             List<string> Per = GetRows(@"SELECT `name`, `fathers_name`, `Surname`, `job` 
                         FROM `persons` 
                         WHERE `id`= " + dt.Rows[i].ItemArray[3].ToString() + @"
                         LIMIT 1");
-            MT.Person = new person();
-            MT.Person.ID = Convert.ToInt32(FromBase(dt, i, 3));
-            MT.Person.Name = Per[0];
-            MT.Person.FathersName = Per[1];
-            MT.Person.Surname = Per[2];
-            MT.Person.Job = Per[3];
-            MT.Structure = FromBaseDecrypt(dt, i, 4);
-            MT.State = FromBaseDecrypt(dt, i, 5);
-            MT.Melting_Point = FromBaseDecrypt(dt, i, 6);
-            MT.Conditions = FromBaseDecrypt(dt, i, 7);
-            MT.Other_Properties = FromBaseDecrypt(dt, i, 8);
-            MT.Mass = FromBaseDecrypt(dt, i, 9);
-            MT.Solution = FromBaseDecrypt(dt, i, 10);
-            MT.Status = Convert.ToInt32(FromBase(dt, i, 11));
-            MT.Analysis = GetRows(@"SELECT `analys`.`name`, `analys`.`name_whom` 
+            MoleculeTransport MT = new MoleculeTransport()
+            {
+                ID = Convert.ToInt32(FromBase(dt, i, 0)),
+                Name = FromBase(dt, i, 1),
+                Laboratory = new laboratory()
+                {
+                    ID = Convert.ToInt32(FromBase(dt, i, 2)),
+                    Name = Lab[0],
+                    Abb = Lab[1]
+                },
+                Person = new person()
+                {
+                    ID = Convert.ToInt32(FromBase(dt, i, 3)),
+                    Name = Per[0],
+                    FathersName = Per[1],
+                    Surname = Per[2],
+                    Job = Per[3]
+                },
+                Structure = FromBaseDecrypt(dt, i, 4),
+                State = FromBaseDecrypt(dt, i, 5),
+                Melting_Point = FromBaseDecrypt(dt, i, 6),
+                Conditions = FromBaseDecrypt(dt, i, 7),
+                Other_Properties = FromBaseDecrypt(dt, i, 8),
+                Mass = FromBaseDecrypt(dt, i, 9),
+                Solution = FromBaseDecrypt(dt, i, 10),
+                Status = Convert.ToInt32(FromBase(dt, i, 11)),
+                Analysis = GetRows(@"SELECT `analys`.`name`, `analys`.`name_whom` 
                         FROM `analys` 
                           INNER JOIN `analys_to_molecules` ON `analys_to_molecules`.`analys` = `analys`.`id`
-                        WHERE `analys_to_molecules`.`molecule` = " + dt.Rows[i].ItemArray[0].ToString() + ";");
+                        WHERE `analys_to_molecules`.`molecule` = " + dt.Rows[i].ItemArray[0].ToString() + ";"),
+                Files = new List<file>(),
 
-            // Добавляем список файлов
-            MT.Files = new List<file>();
+            };
+
             //   Получаем файлы, имеющие отношение к данному соединению
             DataTable files = DataBase.Query(@"SELECT `file` 
                         FROM `files_to_molecules` 
