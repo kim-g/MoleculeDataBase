@@ -12,6 +12,8 @@ namespace MoleculeServer
 {
     public partial class MoleculeServerService : ServiceBase
     {
+        IP_Listener Listener;
+
         public MoleculeServerService()
         {
             InitializeComponent();
@@ -19,10 +21,19 @@ namespace MoleculeServer
 
         protected override void OnStart(string[] args)
         {
+            Listener = new IP_Listener();
+            Listener.Start();
         }
 
         protected override void OnStop()
         {
+            Listener.Stop();
+        }
+
+        internal void Run()
+        {
+            Listener = new IP_Listener();
+            Listener.Start();
         }
     }
 }

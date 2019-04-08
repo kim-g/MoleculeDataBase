@@ -125,6 +125,15 @@ namespace MoleculeServer
         public void Stop()
         {
             Enabled = false;
+
+            foreach (User U in Active_Users)
+            {
+                U.Quit("SYSTEM DOWN: SERVICE HAS BEEN STOPED");
+            }
+
+            // Удалим все устаревшие записи
+            Active_Users.Clear();
+
         }
 
         /// <summary>

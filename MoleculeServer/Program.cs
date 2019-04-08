@@ -14,12 +14,16 @@ namespace MoleculeServer
         /// </summary>
         static void Main()
         {
-            ServiceBase[] ServicesToRun;
-            ServicesToRun = new ServiceBase[]
-            {
-                new MoleculeServerService()
-            };
-            ServiceBase.Run(ServicesToRun);
+            #if !DEBUG
+                  ServiceBase[] ServicesToRun;
+                  ServicesToRun = new ServiceBase[] 
+			            { 
+				            new MoleculeServerService()
+                        };
+                  ServiceBase.Run(ServicesToRun);
+            #else
+                        new MoleculeServerService().Run();
+            #endif
         }
     }
 }
