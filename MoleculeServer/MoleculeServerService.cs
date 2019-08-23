@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.ServiceProcess;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace MoleculeServer
@@ -17,12 +18,17 @@ namespace MoleculeServer
         public MoleculeServerService()
         {
             InitializeComponent();
+
+            this.CanStop = true;
+            this.CanPauseAndContinue = false;
+            this.AutoLog = true;
         }
 
         protected override void OnStart(string[] args)
         {
             Listener = new IP_Listener();
-            Listener.Start();
+            Thread ListenerThread = new Thread(new ThreadStart(Listener.Start));
+            ListenerThread.Start();
         }
 
         protected override void OnStop()
@@ -33,7 +39,8 @@ namespace MoleculeServer
         internal void Run()
         {
             Listener = new IP_Listener();
-            Listener.Start();
+            Thread ListenerThread = new Thread(new ThreadStart(Listener.Start));
+            ListenerThread.Start();
         }
     }
 }

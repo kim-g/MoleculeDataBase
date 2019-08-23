@@ -162,5 +162,10 @@ namespace MoleculeServer
             return Convert.ToInt32(LR.Rows[0].ItemArray[0]);
         }
 
+        public void Log(string Message)
+        {
+            ExecuteQuery($"INSERT INTO `service_log` (`message`) VALUES (\"{Message}\")");
+        }
+
     }
 }

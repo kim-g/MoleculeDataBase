@@ -212,7 +212,7 @@ VALUES (@Name, @Laboratory, @Person, @Structure, @State, @MeltingPoint, @Conditi
             if (Sub_Mol == "")
             {
                 for (int i = 0; i < dt.Rows.Count; i++)
-                    Result.Add(DataRow_To_Molecule_Transport(dt, i).ToXML());
+                    Result.Add(DataRow_To_Molecule_Transport(dt, i).ToXML() + "\n");
 
             }
 
@@ -225,7 +225,7 @@ VALUES (@Name, @Laboratory, @Person, @Structure, @State, @MeltingPoint, @Conditi
                     string Structure = IP_Listener.CommonAES.DecryptStringFromBytes(dt.Rows[i].ItemArray[4] as byte[]);
 
                     if (CheckMol(Sub_Mol, Structure))
-                        Result.Add(DataRow_To_Molecule_Transport(dt, i).ToXML());
+                        Result.Add(DataRow_To_Molecule_Transport(dt, i).ToXML() + "\n");
                 };
             }
 

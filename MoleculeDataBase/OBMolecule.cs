@@ -23,30 +23,30 @@ namespace MoleculeDataBase
         }
 
         /// <summary>
-        /// Сериализация в битовый формат
+        /// Сериализация в MOL формат
         /// </summary>
         /// <returns></returns>
-        public MemoryStream ToBin()
+        public string ToMol()
         {
-            BinaryFormatter formatter = new BinaryFormatter();
-            // получаем поток, куда будем записывать сериализованный объект
-            MemoryStream ms = new MemoryStream();
-            formatter.Serialize(ms, this);
-            ms.Position = 0;
-            return ms;
+            OBConversion conv = new OBConversion();
+            conv.SetOutFormat("mol2");
+            return conv.WriteString(this);
         }
 
         /// <summary>
-        /// Десериализация из битового формата
+        /// Десериализация из MOL формата
         /// </summary>
         /// <param name="ms"></param>
         /// <returns></returns>
-        public static OBMolecule FromBin(Stream ms)
+        public static OBMolecule FromMol(string Molecule)
         {
-            BinaryFormatter formatter = new BinaryFormatter();
-            // получаем поток, куда будем записывать сериализованный объект
-            ms.Position = 0;
-            return (OBMolecule)formatter.Deserialize(ms);
+            OBMolecule mol = new OBMolecule();
+
+            OBConversion conv = new OBConversion();
+            conv.SetInFormat("mol2");
+            conv.ReadString(mol, Molecule);
+
+            return mol;
         }
     }
 }

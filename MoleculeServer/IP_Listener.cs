@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Extentions;
 using System.IO;
+using System.Reflection;
 
 namespace MoleculeServer
 {
@@ -55,11 +56,11 @@ namespace MoleculeServer
                 //Подключаемся к БД
                 DataBase = new DB(DB_Server, DB_Name, DB_User, DB_Pass);
 
-                Console.WriteLine("Подключение к MySQL: 127.0.0.1:3306");
+                Log($"Подключение к службе MySQL: {DB_Server}:3306");
             }
             catch
             {
-                Console.WriteLine("Ошибка подключения к БД");
+                Exception E = new Exception("Ошибка подключения к БД");
             }
 
             // Создаём классы для обработки команд
@@ -75,16 +76,31 @@ namespace MoleculeServer
                 new Commands.Status(DataBase)
             };
 
-            Commands.Log Log = (Commands.Log)(BaseCommands.Where(x => x.Name == "log").ToArray()[0]);
+            Log("Создание команд");
+
+            Commands.Log LogCmd = (Commands.Log)(BaseCommands.Where(x => x.Name == "log").ToArray()[0]);
+
+            Log("Создание команды Log");
 
             // Открываем файл-ключ
-            CommonAES = (AES_Data)AES_Data.LoadFromFile("vector.bin");
+            try
+            {
+                CommonAES = (AES_Data)Serializable.LoadFromFile(Path.Combine(
+                    Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
+                    "vector.bin"));
+                Log("открытие ключа");
+            }
+            catch (Exception e)
+            {
+                Log(e.Message);
+            }
 
             // Устанавливаем для сокета локальную конечную точку
             IPEndPoint ipEndPoint = new IPEndPoint(IPAddress.Any, 11000);
 
             // Создаем сокет Tcp/Ip
             Socket sListener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            Log("Создание сокета");
 
             // Назначаем сокет локальной конечной точке и слушаем входящие сокеты
             try
@@ -92,7 +108,7 @@ namespace MoleculeServer
                 sListener.Bind(ipEndPoint);
                 sListener.Listen(10);
 
-                Console.WriteLine("Старт сервера");
+                Log("Старт сервера");
 
                 // Завершаем все сеансы сообщением о падении сервера.
                 DataBase.ExecuteQuery(@"UPDATE `sessions` 
@@ -102,20 +118,22 @@ namespace MoleculeServer
                 // Начинаем слушать соединения
                 while (Enabled)
                 {
-                    Console.WriteLine($"Ожидаем соединение через порт {ipEndPoint}");
+                    Log($"Ожидаем соединение через порт {ipEndPoint}");
 
                     // Программа приостанавливается, ожидая входящее соединение
                     Socket handler = sListener.Accept();
-                    Task NewCommandRun = Task.Run(() => RunCommand(handler, BaseCommands, Log));
+                    Log($"Сигнал получен. Передаём в отдельный поток");
+                    //Task NewCommandRun = Task.Run(() => RunCommand(handler, BaseCommands, LogCmd));
+                    RunCommand(handler, BaseCommands, LogCmd);
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.ToString());
+                Log(ex.ToString());
             }
             finally
             {
-                Console.ReadLine();
+
             }
         }
 
@@ -230,99 +248,120 @@ namespace MoleculeServer
         /// </summary>
         /// <param name="handler">Сокет</param>
         /// <param name="BaseCommands">Экземпляры команд</param>
-        /// <param name="Log">Журнал</param>
+        /// <param name="LogCmd">Журнал</param>
         private static void RunCommand(Socket handler, List<Commands.ExecutableCommand> BaseCommands,
-            Commands.Log Log)
+            Commands.Log LogCmd)
         {
-            string data = null;
-            // Мы дождались клиента, пытающегося с нами соединиться
-
-            // Получаем длину текстового сообщения
-            byte[] SL_Length_b = new byte[4];
-            handler.Receive(SL_Length_b);
-            int SL_Length = BitConverter.ToInt32(SL_Length_b, 0);
-
-            // Получаем текстовую часть сообщения
-            byte[] bytes = new byte[SL_Length];
-            int bytesRec = handler.Receive(bytes);
-
-            data += Encoding.UTF8.GetString(bytes, 0, bytesRec);
-
-            string[] data_parse = data.Split("\n"[0]);
-
-            // Показываем данные на консоли
-            Console.Write($"Полученный текст: «{data}»\n\n");
-
-            // Очистка ото всех уже не активных пользователей, которые почему-то не удалены из списка активных
-            Active_Users.RemoveAll(x => x.Dead());
-
-            // Ищем пользователя по его логину и защитной записи.
-            // Если дана команда входа в систему, то поиск не производим.
-            User CurUser = null;
-            if (data_parse[0].Trim() != Commands.Account.LoginAll)
+            try
             {
-                CurUser = GetCurUser(data_parse[1], data_parse[2]);
-                if (CurUser == null)
+                string data = null;
+                // Мы дождались клиента, пытающегося с нами соединиться
+                LogCmd.DataBase.Log($"Приняли команду. Начали обработку");
+
+                // Получаем длину текстового сообщения
+                byte[] SL_Length_b = new byte[4];
+                handler.Receive(SL_Length_b);
+                LogCmd.DataBase.Log($"Получили размер команды");
+                int SL_Length = BitConverter.ToInt32(SL_Length_b, 0);
+
+                // Получаем текстовую часть сообщения
+                byte[] bytes = new byte[SL_Length];
+                int bytesRec = handler.Receive(bytes);
+                LogCmd.DataBase.Log($"Получили команду");
+
+                data += Encoding.UTF8.GetString(bytes, 0, bytesRec);
+
+                string[] data_parse = data.Split("\n"[0]);
+
+                // Показываем данные на консоли
+                LogCmd.DataBase.Log($"Полученный текст: «{data}»\n\n");
+
+                // Очистка ото всех уже не активных пользователей, которые почему-то не удалены из списка активных
+                Active_Users.RemoveAll(x => x.Dead());
+                LogCmd.DataBase.Log($"Удалили неактивных пользователей");
+
+                // Ищем пользователя по его логину и защитной записи.
+                // Если дана команда входа в систему, то поиск не производим.
+                User CurUser = null;
+                if (data_parse[0].Trim() != Commands.Account.LoginAll)
                 {
-                    SendMsg(handler, Commands.Answer.StartMsg);
-                    SendMsg(handler, Commands.Answer.LoginExp);
-                    SendMsg(handler, Commands.Answer.EndMsg);
+                    LogCmd.DataBase.Log($"Получили команду на вход");
+                    CurUser = GetCurUser(data_parse[1], data_parse[2]);
+                    LogCmd.DataBase.Log($"Ищем пользователя с такими логином и паролем");
+                    if (CurUser == null)
+                    {
+                        LogCmd.DataBase.Log($"Не нашли. Отправляем сообщение об отказе");
+                        SendMsg(handler, Commands.Answer.StartMsg);
+                        SendMsg(handler, Commands.Answer.LoginExp);
+                        SendMsg(handler, Commands.Answer.EndMsg);
+                        LogCmd.DataBase.Log($"Отправили");
 
-                    handler.Shutdown(SocketShutdown.Both);
-                    handler.Close();
+                        handler.Shutdown(SocketShutdown.Both);
+                        handler.Close();
+                        LogCmd.DataBase.Log($"Закрыли соединение");
 
-                    GC.Collect();
-                    return;
+                        GC.Collect();
+                        return;
+                    }
                 }
-            }
 
-            // Записываем в журнал команду.
-            // Сохраняем все переданные параметры в одну строку через перенос каретки
-            string Params = "";
-            for (int i = 3; i < data_parse.Count(); i++)
-            {
-                if (i > 3) Params += "\n";
-                if ((data_parse[0].Trim() == Commands.Account.LoginAll) &&
-                    (data_parse[i].StartsWith("password ")))
-                    Params += "*****";
-                else Params += data_parse[i];
-            }
-
-            // И добавляем в лог
-            int LogID = Log.SaveQuery(handler, CurUser, data_parse[0], Params);
-
-            // Обработка классом Commands.
-
-            string[] Command = data_parse[0].Split('.');
-            bool Executed = false;
-
-            // Выполним операцию, если команда требует стандартных параметров
-            foreach (Commands.IStandartCommand Block in BaseCommands.OfType<Commands.IStandartCommand>())
-            {
-                if (Command[0].ToLower() == Block.To<Commands.ExecutableCommand>().Name)
+                // Записываем в журнал команду.
+                // Сохраняем все переданные параметры в одну строку через перенос каретки
+                string Params = "";
+                for (int i = 3; i < data_parse.Count(); i++)
                 {
-                    Block.Execute(handler, CurUser, Command, GetParameters(data_parse));
-                    Executed = true;
-                    break;
+                    if (i > 3) Params += "\n";
+                    if ((data_parse[0].Trim() == Commands.Account.LoginAll) &&
+                        (data_parse[i].StartsWith("password ")))
+                        Params += "*****";
+                    else Params += data_parse[i];
                 }
-            }
 
-            // Выполним операцию, если команда требует расширенных параметров
-            foreach (Commands.IUserListCommand Block in BaseCommands.OfType<Commands.IUserListCommand>())
-            {
-                if (Command[0].ToLower() == Block.To<Commands.ExecutableCommand>().Name)
+                // И добавляем в лог
+                int LogID = LogCmd.SaveQuery(handler, CurUser, data_parse[0], Params);
+
+                // Обработка классом Commands.
+
+                string[] Command = data_parse[0].Split('.');
+                bool Executed = false;
+
+                // Выполним операцию, если команда требует стандартных параметров
+                foreach (Commands.IStandartCommand Block in BaseCommands.OfType<Commands.IStandartCommand>())
                 {
-                    Block.Execute(handler, CurUser, Command, GetParameters(data_parse),
-                        Active_Users, LogID);
-                    Executed = true;
-                    break;
+                    if (Command[0].ToLower() == Block.To<Commands.ExecutableCommand>().Name)
+                    {
+                        Block.Execute(handler, CurUser, Command, GetParameters(data_parse));
+                        Executed = true;
+                        break;
+                    }
                 }
+
+                // Выполним операцию, если команда требует расширенных параметров
+                foreach (Commands.IUserListCommand Block in BaseCommands.OfType<Commands.IUserListCommand>())
+                {
+                    if (Command[0].ToLower() == Block.To<Commands.ExecutableCommand>().Name)
+                    {
+                        Block.Execute(handler, CurUser, Command, GetParameters(data_parse),
+                            Active_Users, LogID);
+                        Executed = true;
+                        break;
+                    }
+                }
+
+                if (!Executed) new Commands.Global(DataBase).Execute(handler, CurUser, Command,
+                    GetParameters(data_parse), LogID);
+
+                FinishConnection(handler);
             }
+            catch (Exception e)
+            {
+                LogCmd.DataBase.Log(e.Message);
+            }
+        }
 
-            if (!Executed) new Commands.Global(DataBase).Execute(handler, CurUser, Command,
-                GetParameters(data_parse), LogID);
-
-            FinishConnection(handler);
+        public void Log(string Message)
+        {
+            DataBase.Log(Message);
         }
     }
 }
