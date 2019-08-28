@@ -151,10 +151,13 @@ VALUES (@Name, @Laboratory, @Person, @Structure, @State, @MeltingPoint, @Conditi
         /// <param name="Params"></param>
         private void SearchMoleculesBySMILES(Socket handler, User CurUser, string[] Params)
         {
+            DataBase.Log($"Начало поиска");
+
             string Structure = "";
             string UserID = "";
             string SearchAria = "Permission";
             string Status = "0";
+            DataBase.Log($"Инициализация переменных");
 
             foreach (string Param in Params)
             {
@@ -174,12 +177,15 @@ VALUES (@Name, @Laboratory, @Person, @Structure, @State, @MeltingPoint, @Conditi
                     default: break;
                 }
             }
-            
+            DataBase.Log($"Переменные загружены");
+
             // Запрашиваем поиск по БД
             List<string> Result = Get_Mol(CurUser, Structure, SearchAria, Status.ToInt(), UserID);
+            DataBase.Log($"Поиск выполнен");
 
             // Отправляем ответ клиенту
             CurUser.Transport.SimpleMsg(handler, Result);
+            DataBase.Log($"Ответ отслан");
         }
 
 
@@ -206,8 +212,10 @@ VALUES (@Name, @Laboratory, @Person, @Structure, @State, @MeltingPoint, @Conditi
             queryString += "WHERE (" + CurUser.GetPermissionsOrReqest(Request) + ")";
             if (Status > 0) queryString += " AND (`status` = " + Status.ToString() + ")"; // Добавляем статус в запрос
             if (UserID != "") queryString += " AND (`person` = " + UserID + ")"; // Ищем для конкретного пользователя
+            DataBase.Log($"Запрос сформирован");
 
             DataTable dt = DataBase.Query(queryString);
+            DataBase.Log($"Таблица получена");
 
             if (Sub_Mol == "")
             {
@@ -218,14 +226,21 @@ VALUES (@Name, @Laboratory, @Person, @Structure, @State, @MeltingPoint, @Conditi
 
             else
             {
+                DataBase.Log($"Начат поиск по подструктуре");
                 // Сравнение каждой молекулы из запроса со стандартом
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
                     //Расшифровка
                     string Structure = IP_Listener.CommonAES.DecryptStringFromBytes(dt.Rows[i].ItemArray[4] as byte[]);
+                    DataBase.Log($"Структура из БД получена: {Structure}");
 
                     if (CheckMol(Sub_Mol, Structure))
+                    {
                         Result.Add(DataRow_To_Molecule_Transport(dt, i).ToXML() + "\n");
+                        DataBase.Log($"Структура {Structure} добавлена");
+                    }
+                    else
+                        DataBase.Log($"Структура {Structure} не добавлена");
                 };
             }
 
@@ -241,26 +256,43 @@ VALUES (@Name, @Laboratory, @Person, @Structure, @State, @MeltingPoint, @Conditi
         /// <returns></returns>
         private bool CheckMol(string Mol, string DB_Mol)
         {
+            DataBase.Log($"Получены молекула {DB_Mol} и паттерн {Mol}");
+            DataBase.Log($"Формирование объектов для сравнения");
             // Создаём объекты OpenBabel
-            OBSmartsPattern SP = new OBSmartsPattern();
-            OBConversion obconv = new OBConversion();
-            obconv.SetInFormat("smi");
-            OBMol mol = new OBMol();
-            obconv.ReadString(mol, Mol);
-            obconv.SetOutFormat("smi");
+            OBSmartsPattern SP = null;
+            OBConversion obconv = null;
+            OBMol mol = null;
+            try
+            {
+                SP = new OBSmartsPattern();
+                obconv = new OBConversion();
+                obconv.SetInFormat("smi");
+                mol = new OBMol();
+                obconv.ReadString(mol, Mol);
+                obconv.SetOutFormat("smi");
+                DataBase.Log($"Объекты сформированы");
+            }
+            catch(Exception e)
+            {
+                DataBase.Log($"Объекты не сформированы: причина {e.Message}");
+            }
 
-            
 
             string Temp = obconv.WriteString(mol);
+            DataBase.Log($"Обработанный паттерн {Temp}");
             if (!mol.DeleteHydrogens()) { Console.WriteLine("DeleteHidrogens() failed!"); };  //Убираем все водороды
-            
+            DataBase.Log($"Водороды убраны");
+
             string SubMol = System.Text.RegularExpressions.Regex.Replace(obconv.WriteString(mol), "[Hh ]", ""); //Убираем все водороды
             SP.Init(SubMol);  //Задаём структуру поиска в SMARTS
+            DataBase.Log($"Инициализация поиска по паттерну {SubMol}");
 
             obconv.SetInFormat("smi");
             obconv.ReadString(mol, DB_Mol); //Добавляем структуру из БД
             SP.Match(mol); //Сравниваем
+            DataBase.Log($"Сравнение прошло");
             VectorVecInt Vec = SP.GetUMapList();
+            DataBase.Log($"Число совпадений {Vec.Count}");
             if (Vec.Count > 0) { return true; } else { return false; }; //Возвращаем результат
         }
 

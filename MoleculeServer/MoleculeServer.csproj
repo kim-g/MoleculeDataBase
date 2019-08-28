@@ -101,37 +101,37 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="OpenBabel\formats_cairo.obf">
+    <None Include="formats_cairo.obf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="OpenBabel\formats_common.obf">
+    <None Include="formats_common.obf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="OpenBabel\formats_compchem.obf">
+    <None Include="formats_compchem.obf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="OpenBabel\formats_misc.obf">
+    <None Include="formats_misc.obf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="OpenBabel\formats_utility.obf">
+    <None Include="formats_utility.obf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="OpenBabel\formats_xml.obf">
+    <None Include="formats_xml.obf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="OpenBabel\plugin_charges.obf">
+    <None Include="plugin_charges.obf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="OpenBabel\plugin_descriptors.obf">
+    <None Include="plugin_descriptors.obf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="OpenBabel\plugin_fingerprints.obf">
+    <None Include="plugin_fingerprints.obf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="OpenBabel\plugin_forcefields.obf">
+    <None Include="plugin_forcefields.obf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="OpenBabel\plugin_ops.obf">
+    <None Include="plugin_ops.obf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="vector.bin">
@@ -139,46 +139,46 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="OpenBabel\freetype6.dll">
+    <Content Include="freetype6.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="OpenBabel\iconv.dll">
+    <Content Include="iconv.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="OpenBabel\libcairo-2.dll">
+    <Content Include="libcairo-2.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="OpenBabel\libexpat-1.dll">
+    <Content Include="libexpat-1.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="OpenBabel\libfontconfig-1.dll">
+    <Content Include="libfontconfig-1.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="OpenBabel\libinchi.dll">
+    <Content Include="libinchi.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="OpenBabel\libpng14-14.dll">
+    <Content Include="libpng14-14.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="OpenBabel\libxml2.dll">
+    <Content Include="libxml2.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="MySql.Data.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="OpenBabel\OBDotNet.dll">
+    <Content Include="OBDotNet.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="OpenBabel\openbabel-2.dll">
+    <Content Include="openbabel-2.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="OpenBabel\openbabel_csharp.dll">
+    <Content Include="openbabel_csharp.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="OpenBabel\xdr-0.dll">
+    <Content Include="xdr-0.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="OpenBabel\zlib1.dll">
+    <Content Include="zlib1.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

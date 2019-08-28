@@ -45,8 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="OBDotNet">
-      <HintPath>..\MoleculeServer\OpenBabel\OBDotNet.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>..\MoleculeServer\OBDotNet.dll</HintPath>
     </Reference>
     <Reference Include="System.Runtime.Serialization.Formatters.Soap" />
     <Reference Include="System.XML" />

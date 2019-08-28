@@ -34,6 +34,8 @@ namespace Commands
         /// <param name="Params"></param>
         public void Execute(Socket handler, User CurUser, string[] Command, string[] Params)
         {
+            DataBase.Log($"Начало выполнения команды {Command}");
+
             if (Command.Length == 1)
             {
                 SendHelp(handler, CurUser);
@@ -280,6 +282,7 @@ Parameters may be combined.");
         /// <param name="Params"></param>
         private void AddUser(Socket handler, User CurUser, string[] Params)
         {
+            DataBase.Log($"Начало выполнения команды Add");
             // Если не админ и не менеджер, то ничего не покажем!
             if (!CurUser.GetUserAddRermissions())
             {
@@ -287,6 +290,7 @@ Parameters may be combined.");
                 return;
             }
 
+            
             // Начальная инициация переменных, чтобы из IF(){} вышли
             string Name = "";
             string FName = "";
@@ -298,8 +302,10 @@ Parameters may be combined.");
             string Laboratory = "";
             string LaboratoryID = "";
             string Job = "";
+            DataBase.Log($"Инициализация переменных");
 
             // Ищем данные
+            DataBase.Log($"Обработка данных");
             foreach (string Line in Params)
             {
                 string[] Param = Line.Split(' ');
@@ -337,6 +343,7 @@ or
  - laboratory_id [id] - laboratory's ID in DB.
  - job [Name] - person's job."); break;
                 }
+                DataBase.Log($"Обработка строки {Line}");
             }
 
 
@@ -360,17 +367,21 @@ or
                 if (DT.Rows.Count == 0) { CurUser.Transport.SimpleMsg(handler, "Error: Laboratory not found"); return; };
                 LaboratoryID = DT.Rows[0].ItemArray[0].ToString();
             }
+            DataBase.Log($"Все данные введены");
 
             // Проверка корректности введённых данных
             if (DataBase.RecordsCount("persons", "`login`='" + LoginN + "'") > 0)
             { CurUser.Transport.SimpleMsg(handler, "Error: Login exists"); return; };
             if (Password != CPassword)
             { CurUser.Transport.SimpleMsg(handler, "Error: \"password\" and \"confirm\" should be the similar"); return; }
+            DataBase.Log($"Все данные введены верно");
 
             // Добавление пользователя в БД
             new User(LoginN, Password, Name, FName, Surname, Convert.ToInt32(Permissions), LaboratoryID, Job,
                 DataBase);
-            CurUser.Transport.SimpleMsg(handler, "User added");          
+            DataBase.Log($"Пользователь добавлен.");
+            CurUser.Transport.SimpleMsg(handler, "User added");
+            DataBase.Log($"Сообщение отослано.");
         }
 
         /// <summary>
